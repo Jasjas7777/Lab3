@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Objects;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -23,7 +24,8 @@ public class JSONTranslationExample {
             // which we then create a new JSONArray object from.
             // TODO CheckStyle: Line is longer than 120 characters
             //                  (note: you can split a line such that the next line starts with a .method()... call
-            String jsonString = Files.readString(Paths.get(getClass().getClassLoader().getResource("sample.json").toURI()));
+            String jsonString = Files.readString(Paths.get(getClass()
+                    .getClassLoader().getResource("sample.json").toURI()));
             this.jsonArray = new JSONArray(jsonString);
         }
         catch (IOException | URISyntaxException ex) {
@@ -38,7 +40,7 @@ public class JSONTranslationExample {
     public String getCanadaCountryNameSpanishTranslation() {
 
         // TODO Checkstyle: '30' is a magic number.
-        JSONObject canada = jsonArray.getJSONObject(30);
+        JSONObject canada = jsonArray.getJSONObject(CANADA_INDEX);
         return canada.getString("es");
     }
 
@@ -52,7 +54,19 @@ public class JSONTranslationExample {
      * @return the translation of country to the given language or "Country not found" if there is no translation.
      */
     public String getCountryNameTranslation(String countryCode, String languageCode) {
-        return "Country not found";
+        int i = 0;
+        JSONObject jsonObject = jsonArray.getJSONObject(i);
+        while (i < jsonArray.length() && !Objects.equals(jsonObject.getString("alpha3"), countryCode)) {
+            i++;
+            jsonObject = jsonArray.getJSONObject(i);
+        }
+        if (jsonObject.getString("alpha3").equals(countryCode)) {
+            return jsonObject.getString(languageCode);
+        }
+        else {
+            return "Country not found";
+        }
+
     }
 
     /**
